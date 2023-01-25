@@ -54,4 +54,22 @@ describe('Create Statement', () => {
     }).rejects.toBeInstanceOf(CreateStatementError.UserNotFound);
   });
 
+  it('Should not be able to make a withdrawal with insufficient balance', async () => {
+    const user = await createUserUseCase.execute({
+      name: "admin",
+      email: "admin@test.com",
+      password: "1234"
+    })
+
+    expect(async () => {
+      const statement = {
+        user_id: user.id as string,
+        type: "withdraw" as OperationType,
+        amount: 200,
+        description: "internet"
+      };
+
+      await createStatementUseCase.execute(statement);
+    }).rejects.toBeInstanceOf(CreateStatementError.InsufficientFunds);
+  });
 });
