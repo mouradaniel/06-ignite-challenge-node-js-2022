@@ -1,6 +1,7 @@
 import { InMemoryUsersRepository } from "../../../users/repositories/in-memory/InMemoryUsersRepository";
 import { CreateUserUseCase } from "../../../users/useCases/createUser/CreateUserUseCase";
 import { InMemoryStatementsRepository } from "../../repositories/in-memory/InMemoryStatementsRepository";
+import { CreateStatementError } from "./CreateStatementError";
 import { CreateStatementUseCase } from "./CreateStatementUseCase";
 
 let inMemoryUsersRepository : InMemoryUsersRepository;
@@ -38,6 +39,19 @@ describe('Create Statement', () => {
     const createdStatement = await createStatementUseCase.execute(statement);
 
     expect(createdStatement).toHaveProperty('id');
+  });
+
+  it('Should not be able to create a new statement without user', async () => {
+    expect(async () => {
+      const statement = {
+        user_id: "invalid_user",
+        type: "deposit" as OperationType,
+        amount: 100,
+        description: "freela"
+      };
+
+      await createStatementUseCase.execute(statement);
+    }).rejects.toBeInstanceOf(CreateStatementError.UserNotFound);
   });
 
 });
